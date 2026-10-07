@@ -145,30 +145,53 @@ GALO = [
 ]
 
 
-TROFEU = [
-    "..yyyyyy..",
-    "yyywyyyyyy",
-    "y.ywyyyy.y",
-    "y.yyyyyy.y",
-    ".yyyyyyyy.",
-    "..yyyyyy..",
-    "...yyyy...",
-    "....yy....",
-    "....yy....",
-    "..oooooo..",
-    "..oooooo..",
+# Galo grande do título: corpo + dois quadros de pernas (caminhada)
+GALO_CORPO = [
+    "...............r.r....",
+    "..............rrrrr...",
+    "..gg..........rrrrr...",
+    ".gkkg........lwwwwwl..",
+    "gkwkkg......lwwwwkwl..",
+    "gkkwkkg.....lwwwwwwyyy",
+    ".gkkwkkg....lwwwwwwyy.",
+    "..gkkwkkg...lwwwwwrl..",
+    "...gkkkkg..lwkwwwwrr..",
+    "....gkkkkggwkwkwwwl...",
+    "....gkkkkkkkkwkwkwg...",
+    "...gkkkkkkkkkkwkwkg...",
+    "...gkkkwwwwwwkkkkkg...",
+    "...gkkkkwwwwwwkkkg....",
+    "....gkkkkkkkkkkkg.....",
+    ".....gggkkkkkggg......",
+]
+GALO_PERNAS = [
+    ["........o...o.........",
+     "........o...o.........",
+     ".......oo..oo.........",
+     "......ooo.ooo........."],
+    [".........o.o..........",
+     "........o...o.........",
+     ".......o.....o........",
+     "......oo.....oo......."],
 ]
 
 
-def escudo(x, y, h):
-    """Escudo do Atlético (PNG enviado pelo Ygor) embutido no SVG."""
+def png(nome, x, y):
+    """Embute um PNG de assets/ no SVG (SVG em <img> não carrega arquivo externo)."""
     import base64
     from PIL import Image
-    p = Path(__file__).parent / "assets" / "escudo-cam.png"
-    w = round(h * Image.open(p).width / Image.open(p).height)
+    p = Path(__file__).parent / "assets" / nome
+    w, h = Image.open(p).size
     data = base64.b64encode(p.read_bytes()).decode()
     return (f'<image x="{x}" y="{y}" width="{w}" height="{h}" style="image-rendering:pixelated" '
-            f'href="data:image/png;base64,{data}"/>')
+            f'href="data:image/png;base64,{data}"/>'), w, h
+
+
+def escudo(x, y, h):
+    """Escudo do Atlético (PNG enviado pelo Ygor), redimensionado para a altura h."""
+    img, w0, h0 = png("escudo-cam.png", x, y)
+    w = round(h * w0 / h0)
+    return img.replace(f'width="{w0}" height="{h0}"', f'width="{w}" height="{h}"')
 
 
 def sprite(rows, x, y, sc, extra=""):
@@ -247,7 +270,7 @@ def floor(w, y, h):
 
 
 def header():
-    W, H = 1000, 280
+    W, H = 1000, 320
     b = [f'<rect width="{W}" height="{H}" fill="{BG}"/>', stars(W, 230, 40, 7, calm=True)]
     b.append(ptext("YGORMARQUES7", 30, 24, 2, GREY))
     b.append(ptext("MINAS GERAIS * BR", 970 - text_w("MINAS GERAIS * BR", 2), 24, 2, GREY))
@@ -256,16 +279,26 @@ def header():
     b.append(ptext_c("IMPLEMENTAÇÃO & AUTOMAÇÃO DE CRM", 500, 152, 2, CYAN))
     b.append(ptext_c("GOHIGHLEVEL * AGENTES DE IA * INTEGRAÇÕES", 500, 176, 2, GREY))
     b.append(escudo(110, 56, 120))
-    b.append(floor(W, 244, 36))
-    tro = "".join(f'<g class="hop" style="animation-delay:-{i * .35:.2f}s">'
-                  f'{sprite(TROFEU, 70 + i * 54, 244 - 33, 3)}</g>' for i in range(2))
-    b.append(f'<g class="walk"><g class="bob">{sprite(GALO, 0, 244 - 36, 3)}</g>{tro}</g>')
+    chao = 284
+    b.append(floor(W, chao, 36))
+    sc = 3
+    alt = (len(GALO_CORPO) + 4) * sc
+    quadros = "".join(f'<g class="q{i}">{sprite(GALO_CORPO + pernas, 0, chao - alt, sc)}</g>'
+                      for i, pernas in enumerate(GALO_PERNAS))
+    tro, x = [], 22 * sc + 40
+    for i in range(4):
+        img, w, h = png(f"trofeu-{i + 1}.png", x, 0)
+        img = img.replace(' y="0"', f' y="{chao - h}"')
+        tro.append(f'<g class="hop" style="animation-delay:-{i * .3:.1f}s">{img}</g>')
+        x += w + 26
+    b.append(f'<g class="walk">{quadros}{"".join(tro)}</g>')
     st = (TWINKLE +
-          ".walk{animation:walk 22s steps(220,end) infinite}"
-          "@keyframes walk{from{transform:translateX(-200px)}to{transform:translateX(1000px)}}"
-          ".bob{animation:bob .5s steps(2,end) infinite}@keyframes bob{50%{transform:translateY(-2px)}}"
-          ".hop{animation:hop .7s steps(4,end) infinite}"
-          "@keyframes hop{0%,100%{transform:none}50%{transform:translateY(-10px)}}")
+          ".walk{animation:walk 26s steps(260,end) infinite}"
+          f"@keyframes walk{{from{{transform:translateX(-{x + 20}px)}}to{{transform:translateX(1000px)}}}}"
+          ".q0{animation:q0 .5s steps(1,end) infinite}@keyframes q0{50%{opacity:0}}"
+          ".q1{opacity:0;animation:q1 .5s steps(1,end) infinite}@keyframes q1{50%{opacity:1}}"
+          ".hop{animation:hop .8s steps(4,end) infinite}"
+          "@keyframes hop{0%,100%{transform:none}50%{transform:translateY(-8px)}}")
     return svg(W, H, "".join(b), st, "Ygor Marques - Implementação & Automação de CRM")
 
 
