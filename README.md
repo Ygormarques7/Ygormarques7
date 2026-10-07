@@ -14,7 +14,7 @@
 
 <img src="assets/inventory.svg?v=5" width="100%" alt="Inventário: JavaScript, React, React Native, Java, Python, HTML, CSS, Git, AWS, GoHighLevel, APIs & Webhooks, Claude & IA" />
 
-<img src="https://raw.githubusercontent.com/Ygormarques7/Ygormarques7/output/galo-contribuicoes.svg?v=2" width="100%" alt="Galo comendo meu gráfico de contribuições, perseguido por três bichinhos" />
+<img src="assets/jogo.svg?v=1" width="100%" alt="Caça aos títulos: o Galo correndo atrás dos troféus num labirinto estilo Pac-Man" />
 
 <img src="assets/footer.svg?v=5" width="100%" alt="Vamos conversar? LinkedIn e email" />
 

@@ -422,6 +422,126 @@ def inventory():
     return svg(W, H, "".join(b), BLINK, "Inventário - tecnologias")
 
 
+# ---------- 6b. jogo: Galo atrás dos títulos no labirinto ----------
+# Percurso fechado (coluna, linha) pelos corredores; o resto do labirinto é parede.
+PERCURSO = [(1, 1), (11, 1), (11, 3), (22, 3), (22, 1), (33, 1), (33, 9), (26, 9), (26, 5),
+            (18, 5), (18, 9), (7, 9), (7, 5), (4, 5), (4, 9), (1, 9), (1, 1)]
+MZ_COLS, MZ_ROWS, MZ_CELL = 35, 11, 26
+MZ_TC = 0.18  # segundos por casa
+
+
+def jogo():
+    W = 1000
+    ox, oy = (W - MZ_COLS * MZ_CELL) // 2, 48
+    H = oy + MZ_ROWS * MZ_CELL + 30
+
+    # casas do percurso, na ordem
+    casas = [PERCURSO[0]]
+    for (c0, r0), (c1, r1) in zip(PERCURSO, PERCURSO[1:]):
+        dc, dr = (c1 > c0) - (c1 < c0), (r1 > r0) - (r1 < r0)
+        c, r = c0, r0
+        while (c, r) != (c1, r1):
+            c, r = c + dc, r + dr
+            casas.append((c, r))
+    casas = casas[:-1]  # o último repete o primeiro
+    corredor = set(casas)
+    n = len(casas)
+    dur = n * MZ_TC
+
+    def centro(c, r):
+        return ox + c * MZ_CELL + MZ_CELL // 2, oy + r * MZ_CELL + MZ_CELL // 2
+
+    b = [f'<rect width="{W}" height="{H}" fill="{BG}"/>', window(8, 18, W - 16, H - 26, "CAÇA AOS TÍTULOS")]
+    # paredes: contorno azul em volta dos corredores (estilo Pac-Man)
+    PAREDE, t = "#2f4fe0", 3
+    for c, r in corredor:
+        x, y = ox + c * MZ_CELL, oy + r * MZ_CELL
+        if (c, r - 1) not in corredor:
+            b.append(f'<rect x="{x}" y="{y}" width="{MZ_CELL}" height="{t}" fill="{PAREDE}"/>')
+        if (c, r + 1) not in corredor:
+            b.append(f'<rect x="{x}" y="{y + MZ_CELL - t}" width="{MZ_CELL}" height="{t}" fill="{PAREDE}"/>')
+        if (c - 1, r) not in corredor:
+            b.append(f'<rect x="{x}" y="{y}" width="{t}" height="{MZ_CELL}" fill="{PAREDE}"/>')
+        if (c + 1, r) not in corredor:
+            b.append(f'<rect x="{x + MZ_CELL - t}" y="{y}" width="{t}" height="{MZ_CELL}" fill="{PAREDE}"/>')
+    # barras internas (como os blocos do Pac-Man), em linhas alternadas
+    def livre(c, r):
+        return (0 < c < MZ_COLS - 1 and 0 < r < MZ_ROWS - 1 and (c, r) not in corredor and
+                not any((c + dc, r + dr) in corredor for dc in (-1, 0, 1) for dr in (-1, 0, 1)))
+    for r in range(1, MZ_ROWS - 1):
+        c = 1
+        while c < MZ_COLS - 1:
+            if not livre(c, r):
+                c += 1
+                continue
+            ini = c
+            while c < MZ_COLS - 1 and livre(c, r) and c - ini < 5:
+                c += 1
+            x, y = ox + ini * MZ_CELL, oy + r * MZ_CELL
+            larg = (c - ini) * MZ_CELL
+            b.append(f'<rect x="{x + 5}" y="{y + 6}" width="{larg - 10}" height="{MZ_CELL - 12}" '
+                     f'fill="none" stroke="{PAREDE}" stroke-width="3"/>')
+            c += 1  # espaço entre barras
+
+    lider = 12 * MZ_TC  # o Galo começa 12 casas à frente do ponto de partida
+    cantos = {(1, 1), (33, 1), (33, 9), (1, 9)}
+    for i, (c, r) in enumerate(casas):
+        x, y = centro(c, r)
+        f = i / n
+        anim = (f'<animate attributeName="opacity" values="1;0" keyTimes="0;{f:.4f}" calcMode="discrete" '
+                f'dur="{dur:.2f}s" begin="-{lider:.2f}s" repeatCount="indefinite"/>')
+        if (c, r) in cantos:
+            b.append(f'<g class="bl"><rect x="{x - 6}" y="{y - 6}" width="12" height="12" fill="#ffd8a8">{anim}</rect></g>')
+        else:
+            b.append(f'<rect x="{x - 2}" y="{y - 2}" width="4" height="4" fill="#ffd8a8">{anim}</rect>')
+
+    caminho = "M" + " L".join("{} {}".format(*centro(c, r)) for c, r in casas + [casas[0]])
+
+    def mov(adiant):
+        return (f'<animateMotion path="{caminho}" dur="{dur:.2f}s" begin="-{adiant:.2f}s" '
+                f'repeatCount="indefinite" calcMode="linear"/>')
+
+    # troféus fugindo na frente do Galo
+    for i in range(4):
+        img, w0, h0 = png(f"trofeu-{i + 1}.png", 0, 0)
+        h = round(h0 * 0.62)
+        w = round(w0 * 0.62)
+        img = (img.replace(f'width="{w0}" height="{h0}"', f'width="{w}" height="{h}"')
+                  .replace('x="0" y="0"', f'x="{-w // 2}" y="{MZ_CELL // 2 - h}"'))
+        adiant = lider + (3 + i * 2.5) * MZ_TC
+        b.append(f'<g><g class="hop" style="animation-delay:-{i * .3:.1f}s">{img}</g>{mov(adiant)}</g>')
+
+    # Galo virado para o lado em que anda
+    sentido, trocas, atual = [], [], None
+    for i, ((c0, r0), (c1, r1)) in enumerate(zip(casas, casas[1:] + casas[:1])):
+        if c1 != c0:
+            d = 1 if c1 > c0 else -1
+            if d != atual:
+                trocas.append((i / n, d))
+                atual = d
+    if trocas[0][0] > 0:
+        trocas.insert(0, (0.0, trocas[-1][1]))
+    kt = ";".join(f"{t:.4f}" for t, _ in trocas)
+
+    def lado(d):
+        vals = ";".join("1" if s == d else "0" for _, s in trocas)
+        return (f'<animate attributeName="opacity" values="{vals}" keyTimes="{kt}" calcMode="discrete" '
+                f'dur="{dur:.2f}s" begin="-{lider:.2f}s" repeatCount="indefinite"/>')
+
+    sc = 1.5
+    gw, gh = 22 * sc, (len(GALO_CORPO) + 4) * sc
+    quadros = "".join(f'<g class="q{i}">{sprite(GALO_CORPO + p, -gw // 2, MZ_CELL // 2 - gh, sc)}</g>'
+                      for i, p in enumerate(GALO_PERNAS))
+    b.append(f'<g><g>{quadros}{lado(1)}</g><g transform="scale(-1,1)">{quadros}{lado(-1)}</g>{mov(lider)}</g>')
+
+    st = (BLINK +
+          ".q0{animation:q0 .4s steps(1,end) infinite}@keyframes q0{50%{opacity:0}}"
+          ".q1{opacity:0;animation:q1 .4s steps(1,end) infinite}@keyframes q1{50%{opacity:1}}"
+          ".hop{animation:hop .6s steps(3,end) infinite}"
+          "@keyframes hop{0%,100%{transform:none}50%{transform:translateY(-5px)}}")
+    return svg(W, H, "".join(b), st, "Caça aos títulos: o Galo atrás dos troféus no labirinto")
+
+
 # ---------- 7. rodapé ----------
 def footer():
     W, H = 1000, 210
@@ -445,6 +565,7 @@ if __name__ == "__main__":
         "status.svg": status(),
         "quests.svg": quests(),
         "inventory.svg": inventory(),
+        "jogo.svg": jogo(),
         "footer.svg": footer(),
     }
     for name, content in files.items():
