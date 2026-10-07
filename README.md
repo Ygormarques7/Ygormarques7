@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="assets/header.svg?v=6" width="100%" alt="Ygor Marques - Implementação & Automação de CRM com GoHighLevel - título 8-bit" />
+<img src="assets/header.svg?v=7" width="100%" alt="Ygor Marques - Implementação & Automação de CRM com GoHighLevel - título 8-bit" />
 
 <a href="mailto:ygorfreire.dev@gmail.com"><img src="assets/btn-email.svg?v=5" height="48" alt="Email" /></a>
 <a href="https://github.com/Ygormarques7?tab=repositories"><img src="assets/btn-repos.svg?v=5" height="48" alt="Repositórios" /></a>
