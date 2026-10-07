@@ -1,3 +1,4 @@
 preview.html
 __pycache__/
-
+dist/
+assets/_galo-preview.svg

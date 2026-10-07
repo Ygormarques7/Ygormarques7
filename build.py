@@ -144,6 +144,36 @@ GALO = [
     "...yy..yy....",
 ]
 
+
+def escudo():
+    """Escudo pixel inspirado no do Galo: estrela, faixa CAM e listras preto/branco."""
+    W = 17
+    star = ["...y...", "..yyy..", "yyyyyyy", ".yyyyy.", ".yy.yy."]
+    rows = ["." * 5 + s + "." * 5 for s in star] + ["." * W]
+    rows.append("l" * W)
+    letters = {  # C, A, M (5 linhas)
+        "C": ["kkk", "kww", "kww", "kww", "kkk"],
+        "A": ["wkw", "kwk", "kkk", "kwk", "kwk"],
+        "M": ["kwwwk", "kkwkk", "kwkwk", "kwwwk", "kwwwk"],
+    }
+    rows.append("l" + "w" * (W - 2) + "l")
+    for r in range(5):
+        rows.append("lw" + letters["C"][r] + "w" + letters["A"][r] + "w" + letters["M"][r] + "wl")
+    rows.append("l" + "w" * (W - 2) + "l")
+    rows.append("l" * W)
+
+    def faixa(lo, hi):
+        return "".join("." if c < lo or c > hi else "l" if c in (lo, hi) else ("k" if c % 2 else "w")
+                       for c in range(W))
+    rows += [faixa(0, 16)] * 7
+    rows += [faixa(1, 15), faixa(2, 14), faixa(3, 13), faixa(5, 11), faixa(7, 9)]
+    rows.append("." * 8 + "l" + "." * 8)
+    return rows
+
+
+ESCUDO = escudo()
+
+
 def sprite(rows, x, y, sc, extra=""):
     by = {}
     for r, row in enumerate(rows):
@@ -219,10 +249,6 @@ def floor(w, y, h):
     return "".join(out)
 
 
-WALK = (".walk{animation:walk 16s steps(160,end) infinite}"
-        "@keyframes walk{from{transform:translateX(-60px)}to{transform:translateX(1000px)}}")
-
-
 def header():
     W, H = 1000, 280
     b = [f'<rect width="{W}" height="{H}" fill="{BG}"/>', stars(W, 230, 40, 7, calm=True)]
@@ -233,8 +259,8 @@ def header():
     b.append(ptext_c("IMPLEMENTAÇÃO & AUTOMAÇÃO DE CRM", 500, 168, 2, CYAN))
     b.append(ptext_c("GOHIGHLEVEL * AGENTES DE IA * INTEGRAÇÕES", 500, 194, 2, GREY))
     b.append(floor(W, 244, 36))
-    b.append(sprite(GALO, 0, 208, 3, 'class="walk"'))
-    return svg(W, H, "".join(b), TWINKLE + WALK, "Ygor Marques - Implementação & Automação de CRM")
+    b.append(sprite(ESCUDO, 905, 244 - len(ESCUDO) * 3, 3))
+    return svg(W, H, "".join(b), TWINKLE, "Ygor Marques - Implementação & Automação de CRM")
 
 
 # ---------- 2. botões ----------
@@ -295,7 +321,7 @@ def status():
     fx, fy, fw, fh = 740, 48, 210, 196
     b.append(f'<rect x="{fx}" y="{fy}" width="{fw}" height="{fh}" fill="{BG}"/>')
     b.append(f'<rect x="{fx}" y="{fy}" width="{fw}" height="{fh}" fill="none" stroke="{DGREY}" stroke-width="4"/>')
-    b.append(sprite(GALO, fx + 40, fy + 20, 10))
+    b.append(sprite(ESCUDO, fx + (fw - 17 * 5) // 2, fy + 12, 5))
     b.append(ptext_c("ATLÉTICO-MG", fx + fw // 2, fy + fh - 28, 2, GREY))
     return svg(W, H, "".join(b), "", "Perfil")
 
@@ -367,8 +393,7 @@ def footer():
              f'style="{MONO};font-size:17px;font-weight:bold">'
              f'linkedin.com/in/ygor-freire-374940291  ·  ygorfreire.dev@gmail.com</text>')
     b.append(floor(W, 174, 36))
-    b.append(sprite(GALO, 0, 138, 3, 'class="walk"'))
-    return svg(W, H, "".join(b), TWINKLE + WALK, "Vamos conversar?")
+    return svg(W, H, "".join(b), TWINKLE, "Vamos conversar?")
 
 
 if __name__ == "__main__":

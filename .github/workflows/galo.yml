@@ -1,4 +1,4 @@
-name: pacman-contribution-graph
+name: galo-contribuicoes
 
 on:
   schedule:
@@ -15,10 +15,12 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: Gerar pacman-contribution-graph.svg
-        uses: abozanona/pacman-contribution-graph@main
-        with:
-          github_user_name: ${{ github.repository_owner }}
+      - uses: actions/checkout@v4
+
+      - name: Gerar galo-contribuicoes.svg
+        run: python3 galo.py ${{ github.repository_owner }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publicar na branch output
         uses: crazy-max/ghaction-github-pages@v4
