@@ -6,7 +6,7 @@
 <a href="mailto:ygorfreire.dev@gmail.com"><img src="assets/btn-email.svg?v=8" height="48" alt="Email" /></a>
 <a href="https://github.com/Ygormarques7?tab=repositories"><img src="assets/btn-repos.svg?v=8" height="48" alt="Repositórios" /></a>
 
-<img src="assets/dialog.svg?v=5" width="100%" alt="Sobre: implemento e automatizo operações de CRM no GoHighLevel na AVA Partners: pipelines, workflows, agentes de IA (Conversation AI e Voice AI), WhatsApp e integrações via API para clientes reais. Graduando em Ciência da Computação na Univértix (8º período)." />
+<img src="assets/dialog.svg?v=9" width="100%" alt="Sobre: implemento e automatizo operações de CRM no GoHighLevel na AVA Partners: pipelines, workflows, agentes de IA (Conversation AI e Voice AI), WhatsApp e integrações via API para clientes reais. Graduando em Ciência da Computação na Univértix (8º período)." />
 
 <img src="assets/status.svg?v=5" width="100%" alt="Perfil: Implementação & Automação de CRM na AVA Partners, Ciência da Computação na Univértix (8º período), Minas Gerais, Brasil" />
 
