@@ -302,16 +302,58 @@ def header():
 
 
 # ---------- 2. botões ----------
-def button(label, col):
-    w = text_w(label, 2) + 70
+ICONES = {
+    "linkedin": [  # símbolo "in" do LinkedIn em pixel
+        ".wwwwwwwwww.",
+        "wwwwwwwwwwww",
+        "wLLwwwwwwwww",
+        "wLLwwwwwwwww",
+        "wwwwwwwwwwww",
+        "wLLwLLLLLLww",
+        "wLLwLLwwLLww",
+        "wLLwLLwwLLww",
+        "wLLwLLwwLLww",
+        "wLLwLLwwLLww",
+        "wwwwwwwwwwww",
+        ".wwwwwwwwww.",
+    ],
+    "email": [  # envelope
+        "wwwwwwwwwwww",
+        "wkwwwwwwwwkw",
+        "wwkwwwwwwkww",
+        "wwwkwwwwkwww",
+        "wwwwkwwkwwww",
+        "wwwwwkkwwwww",
+        "wwwwwwwwwwww",
+        "wwwwwwwwwwww",
+        "wwwwwwwwwwww",
+    ],
+    "repos": [  # pasta
+        "oooo........",
+        "oooooooooooo",
+        "oooooooooooo",
+        "yyyyyyyyyyyy",
+        "yyyyyyyyyyyy",
+        "yyyyyyyyyyyy",
+        "yyyyyyyyyyyy",
+        "yyyyyyyyyyyy",
+        "yyyyyyyyyyyy",
+    ],
+}
+PAL["L"] = "#0a66c2"
+
+
+def button(label, col, icone):
+    w = text_w(label, 2) + 86
     h = 52
+    ic = ICONES[icone]
     b = [f'<rect x="6" y="6" width="{w - 6}" height="{h - 6}" fill="#000"/>',  # sombra
          f'<rect x="4" y="0" width="{w - 14}" height="{h - 6}" fill="{WHITE}"/>',
          f'<rect x="0" y="4" width="{w - 6}" height="{h - 14}" fill="{WHITE}"/>',
          f'<rect x="4" y="4" width="{w - 14}" height="{h - 14}" fill="{col}"/>',
          f'<rect x="4" y="{h - 16}" width="{w - 14}" height="6" fill="#000" opacity=".25"/>',
-         ptext(">", 18, 16, 2, WHITE),
-         ptext(label, 40, 16, 2, WHITE)]
+         sprite(ic, 16, 23 - len(ic), 2),
+         ptext(label, 52, 16, 2, WHITE)]
     return svg(w, h, "".join(b), "", label)
 
 
@@ -558,9 +600,9 @@ if __name__ == "__main__":
     OUT.mkdir(exist_ok=True)
     files = {
         "header.svg": header(),
-        "btn-email.svg": button("EMAIL", RED),
-        "btn-repos.svg": button("REPOSITÓRIOS", BLUE),
-        "btn-linkedin.svg": button("LINKEDIN", "#0a66c2"),
+        "btn-email.svg": button("EMAIL", RED, "email"),
+        "btn-repos.svg": button("REPOSITÓRIOS", BLUE, "repos"),
+        "btn-linkedin.svg": button("LINKEDIN", "#0a66c2", "linkedin"),
         "dialog.svg": dialog(),
         "status.svg": status(),
         "quests.svg": quests(),
