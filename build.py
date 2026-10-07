@@ -128,25 +128,6 @@ PAL = {
     "r": RED, "g": "#566c86", "o": ORANGE, "c": CYAN, "G": GREEN, "l": "#c0cbdc",
 }
 
-HERO = [
-    "...kkkkkk...",
-    "..khhhhhhk..",
-    ".khhhhhhhhk.",
-    ".khhhhhhhhk.",
-    ".khsssssshk.",
-    ".kssesssesk.",
-    ".kssssssssk.",
-    "..kssSSssk..",
-    "...kkssk....",
-    "..kbbwwbbk..",
-    ".kbbbwwbbbk.",
-    ".kbbbbbbbbk.",
-    "ksbbbbbbbbsk",
-    ".kkppppppkk.",
-    "..kppk.kppk.",
-    "..kddk.kddk.",
-]
-
 # Galo: mascote pixel preto e branco
 GALO = [
     "........rr..",
@@ -162,31 +143,6 @@ GALO = [
     "....y..y.....",
     "...yy..yy....",
 ]
-
-BLOCK = [
-    "kkkkkkkkkkkk",
-    "kyyyyyyyyyyk",
-    "kyoyyyyyyoyk",
-    "kyyyykkkyyyk",
-    "kyyykyyykyyk",
-    "kyyyyyyykyyk",
-    "kyyyyyykyyyk",
-    "kyyyyykyyyyk",
-    "kyyyyyyyyyyk",
-    "kyoyyykyyoyk",
-    "kyyyyyyyyyyk",
-    "kkkkkkkkkkkk",
-]
-
-HEART = [
-    ".rr.rr.",
-    "rwrrrrr",
-    "rrrrrrr",
-    ".rrrrr.",
-    "..rrr..",
-    "...r...",
-]
-
 
 def sprite(rows, x, y, sc, extra=""):
     by = {}
@@ -213,13 +169,13 @@ def svg(w, h, body, style="", title=""):
             f'shape-rendering="crispEdges">{t}<style>{style}</style>{body}</svg>')
 
 
-def stars(w, h, n, seed, top=0):
+def stars(w, h, n, seed, top=0, calm=False):
     rnd = random.Random(seed)
     out = []
     for i in range(n):
         x, y = rnd.randrange(0, w, 4), rnd.randrange(top, h, 4)
         s = rnd.choice([2, 2, 2, 4])
-        col = rnd.choice([WHITE, WHITE, CYAN, YEL, GREY])
+        col = rnd.choice([GREY, DGREY, WHITE] if calm else [WHITE, WHITE, CYAN, YEL, GREY])
         out.append(f'<rect class="tw" style="animation-delay:-{rnd.random() * 3:.2f}s" '
                    f'x="{x}" y="{y}" width="{s}" height="{s}" fill="{col}"/>')
     return "".join(out)
@@ -227,21 +183,6 @@ def stars(w, h, n, seed, top=0):
 
 TWINKLE = ".tw{animation:tw 3s steps(2,end) infinite}@keyframes tw{50%{opacity:.15}}"
 BLINK = ".bl{animation:bl 1.2s steps(1,end) infinite}@keyframes bl{50%{opacity:0}}"
-
-
-def ground(w, y, h):
-    """Faixa de grama + tijolos."""
-    out = [f'<rect x="0" y="{y}" width="{w}" height="{h}" fill="#5d2c28"/>',
-           f'<rect x="0" y="{y}" width="{w}" height="8" fill="{GREEN}"/>',
-           f'<rect x="0" y="{y + 8}" width="{w}" height="4" fill="{DGREEN}"/>']
-    tile = 24
-    for row, ty in enumerate(range(y + 12, y + h, tile // 2)):
-        off = (tile // 2) if row % 2 else 0
-        out.append(f'<rect x="0" y="{ty}" width="{w}" height="2" fill="#3b1a1a"/>')
-        for tx in range(-off, w, tile):
-            out.append(f'<rect x="{tx}" y="{ty}" width="2" height="{tile // 2}" fill="#3b1a1a"/>')
-            out.append(f'<rect x="{tx + 2}" y="{ty + 2}" width="{tile - 6}" height="2" fill="#8a4836"/>')
-    return "".join(out)
 
 
 def window(x, y, w, h, title=None, tcol=YEL):
@@ -260,45 +201,40 @@ def window(x, y, w, h, title=None, tcol=YEL):
     return "".join(o)
 
 
-def bar(x, y, segs, filled, col, sz=12, gap=3):
-    o = []
-    for i in range(segs):
-        c = col if i < filled else DGREY
-        o.append(f'<rect x="{x + i * (sz + gap)}" y="{y}" width="{sz}" height="{sz}" fill="{c}"/>')
-    return "".join(o)
-
-
 def esc(s):
     return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
 
 
 # ---------- 1. header ----------
+def floor(w, y, h):
+    """Piso discreto em azul-ardósia (substitui a grama/tijolo)."""
+    out = [f'<rect x="0" y="{y}" width="{w}" height="{h}" fill="#151a33"/>',
+           f'<rect x="0" y="{y}" width="{w}" height="4" fill="{BLUE}"/>',
+           f'<rect x="0" y="{y + 4}" width="{w}" height="2" fill="{DBLUE}"/>']
+    for ty in range(y + 6, y + h, 16):
+        out.append(f'<rect x="0" y="{ty + 14}" width="{w}" height="2" fill="#0f1226"/>')
+        off = 16 if (ty - y) // 16 % 2 else 0
+        for tx in range(-off, w, 32):
+            out.append(f'<rect x="{tx}" y="{ty}" width="2" height="16" fill="#0f1226"/>')
+    return "".join(out)
+
+
+WALK = (".walk{animation:walk 16s steps(160,end) infinite}"
+        "@keyframes walk{from{transform:translateX(-60px)}to{transform:translateX(1000px)}}")
+
+
 def header():
-    W, H = 1000, 320
-    b = [f'<rect width="{W}" height="{H}" fill="{BG}"/>', stars(W, 250, 70, 7)]
-    # lua
-    b.append(sprite(["..llll..", ".llllll.", "lllllwl.", "llllll..", "lllll...", "llllll..",
-                     ".llllll.", "..llll.."], 880, 60, 5))
-    # HUD
-    b.append(ptext("1P", 30, 20, 2, RED) + ptext("YGOR", 30, 40, 2, WHITE))
-    b.append(ptext_c("RECORDE", 500, 20, 2, RED) + ptext_c("0002026", 500, 40, 2, WHITE))
-    b.append(ptext("FASE", 970 - text_w("FASE", 2), 20, 2, RED)
-             + ptext("8-8", 970 - text_w("8-8", 2), 40, 2, WHITE))
-    # título
-    b.append(ptext_c("YGOR MARQUES", 500, 92, 7, YEL, shadow=RED))
-    b.append(ptext_c("IMPLEMENTAÇÃO & AUTOMAÇÃO DE CRM * GOHIGHLEVEL", 500, 160, 2, CYAN))
-    b.append(ptext_c("APERTE START", 500, 196, 3, WHITE, cls="bl"))
-    # chão + personagens
-    b.append(ground(W, 268, 52))
-    b.append(sprite(BLOCK, 120, 120, 4, 'class="bump"'))
-    b.append(sprite(HERO, 126, 204, 4, 'class="bob"'))
-    b.append(sprite(GALO, 0, 232, 3, 'class="walk"'))
-    st = (TWINKLE + BLINK +
-          ".bob{animation:bob 1s steps(2,end) infinite}@keyframes bob{50%{transform:translateY(-4px)}}"
-          ".bump{animation:bump 2.4s steps(1,end) infinite}@keyframes bump{0%,90%{transform:none}95%{transform:translateY(-8px)}}"
-          ".walk{animation:walk 14s steps(140,end) infinite}"
-          "@keyframes walk{from{transform:translateX(260px)}to{transform:translateX(1000px)}}")
-    return svg(W, H, "".join(b), st, "Ygor Marques - Implementação & Automação de CRM")
+    W, H = 1000, 280
+    b = [f'<rect width="{W}" height="{H}" fill="{BG}"/>', stars(W, 230, 40, 7, calm=True)]
+    b.append(ptext("YGORMARQUES7", 30, 24, 2, GREY))
+    b.append(ptext("MINAS GERAIS * BR", 970 - text_w("MINAS GERAIS * BR", 2), 24, 2, GREY))
+    b.append(ptext_c("YGOR MARQUES", 500, 78, 7, WHITE, shadow=BLUE))
+    b.append(f'<rect x="{500 - 60}" y="148" width="120" height="4" fill="{CYAN}"/>')
+    b.append(ptext_c("IMPLEMENTAÇÃO & AUTOMAÇÃO DE CRM", 500, 168, 2, CYAN))
+    b.append(ptext_c("GOHIGHLEVEL * AGENTES DE IA * INTEGRAÇÕES", 500, 194, 2, GREY))
+    b.append(floor(W, 244, 36))
+    b.append(sprite(GALO, 0, 208, 3, 'class="walk"'))
+    return svg(W, H, "".join(b), TWINKLE + WALK, "Ygor Marques - Implementação & Automação de CRM")
 
 
 # ---------- 2. botões ----------
@@ -310,99 +246,85 @@ def button(label, col):
          f'<rect x="0" y="4" width="{w - 6}" height="{h - 14}" fill="{WHITE}"/>',
          f'<rect x="4" y="4" width="{w - 14}" height="{h - 14}" fill="{col}"/>',
          f'<rect x="4" y="{h - 16}" width="{w - 14}" height="6" fill="#000" opacity=".25"/>',
-         ptext(">", 18, 16, 2, WHITE, cls="bl"),
+         ptext(">", 18, 16, 2, WHITE),
          ptext(label, 40, 16, 2, WHITE)]
-    return svg(w, h, "".join(b), BLINK, label)
+    return svg(w, h, "".join(b), "", label)
 
 
-# ---------- 3. diálogo ----------
+# ---------- 3. sobre ----------
 def dialog():
     W, H = 1000, 190
     lines = [
-        "Oi! Eu sou o Ygor. Implemento e automatizo CRMs no GoHighLevel:",
-        "pipelines, workflows, Conversation AI, Voice AI, WhatsApp e",
-        "integrações via API para clientes reais. Também estou na reta",
-        "final de Ciência da Computação na Univértix.",
+        "Implemento e automatizo operações de CRM no GoHighLevel na AVA",
+        "Partners: pipelines, workflows, agentes de IA (Conversation AI e",
+        "Voice AI), WhatsApp e integrações via API para clientes reais.",
+        "Graduando em Ciência da Computação na Univértix (8º período).",
     ]
-    b = [f'<rect width="{W}" height="{H}" fill="{BG}"/>', window(8, 18, W - 16, H - 26, "JOGADOR 1")]
-    b.append(sprite(HERO, 40, 60, 5))
+    b = [f'<rect width="{W}" height="{H}" fill="{BG}"/>', window(8, 18, W - 16, H - 26, "SOBRE")]
     for i, ln in enumerate(lines):
         y = 66 + i * 28
-        # largura base 860 = texto visível mesmo se o navegador não rodar a animação
+        # largura base visível: se o navegador não rodar a animação, o texto aparece igual
         t0, t1 = (0.3 + i * 1.6) / 7, (1.9 + i * 1.6) / 7
-        b.append(f'<clipPath id="c{i}"><rect x="120" y="{y - 20}" height="28" width="860">'
-                 f'<animate attributeName="width" values="0;0;860" keyTimes="0;{t0:.3f};{t1:.3f}" '
+        b.append(f'<clipPath id="c{i}"><rect x="40" y="{y - 20}" height="28" width="920">'
+                 f'<animate attributeName="width" values="0;0;920" keyTimes="0;{t0:.3f};{t1:.3f}" '
                  f'dur="7s" begin="0s" fill="freeze"/></rect></clipPath>')
-        b.append(f'<text x="124" y="{y}" clip-path="url(#c{i})" fill="{WHITE}" '
+        b.append(f'<text x="44" y="{y}" clip-path="url(#c{i})" fill="{WHITE}" '
                  f'style="{MONO};font-size:19px;font-weight:bold">{esc(ln)}</text>')
-    b.append(f'<g class="bl">{ptext("V", 940, 150, 2, YEL)}</g>')
-    return svg(W, H, "".join(b), BLINK, "Intro")
+    b.append(f'<rect class="bl" x="44" y="{66 + 3 * 28 + 10}" width="12" height="4" fill="{CYAN}"/>')
+    return svg(W, H, "".join(b), BLINK, "Sobre")
 
 
-# ---------- 4. status ----------
+# ---------- 4. perfil ----------
 def status():
-    W, H = 1000, 330
-    b = [f'<rect width="{W}" height="{H}" fill="{BG}"/>', window(8, 18, W - 16, H - 26, "STATUS")]
-    # retrato
-    b.append(f'<rect x="40" y="50" width="170" height="240" fill="{DBLUE}"/>')
-    b.append(f'<rect x="40" y="50" width="170" height="240" fill="none" stroke="{WHITE}" stroke-width="4"/>')
-    b.append(sprite(HERO, 65, 70, 10, 'class="bob"'))
-    b.append(ptext_c("LV 08", 125, 262, 2, YEL))
+    W, H = 1000, 270
+    b = [f'<rect width="{W}" height="{H}" fill="{BG}"/>', window(8, 18, W - 16, H - 26, "PERFIL")]
     rows = [
         ("NOME", "Ygor Marques"),
-        ("CLASSE", "CRM & Automação"),
-        ("GUILDA", "AVA Partners  (GoHighLevel)"),
-        ("FACUL", "Univértix - Computação"),
-        ("FASE", "8º período de 8"),
+        ("FUNÇÃO", "Implementação & Automação de CRM"),
+        ("EMPRESA", "AVA Partners"),
+        ("FORMAÇÃO", "Ciência da Computação · Univértix"),
+        ("PERÍODO", "8º de 8"),
         ("BASE", "Minas Gerais, Brasil"),
-        ("ALIADO", "Galo  (Atlético-MG)"),
     ]
     for i, (k, v) in enumerate(rows):
-        y = 70 + i * 26
-        b.append(ptext(k, 240, y - 13, 2, YEL))
-        b.append(ptext("." * (7 - len(k) + 2), 240 + text_w(k, 2) + 8, y - 13, 2, DGREY))
-        b.append(f'<text x="370" y="{y}" fill="{WHITE}" style="{MONO};font-size:18px;font-weight:bold">'
+        y = 72 + i * 30
+        b.append(ptext(k, 44, y - 13, 2, CYAN))
+        b.append(f'<text x="210" y="{y}" fill="{WHITE}" style="{MONO};font-size:18px;font-weight:bold">'
                  f'{esc(v)}</text>')
-    b.append(sprite(GALO, 600, 210, 3))
-    # barras
-    bars = [("HP", "CAFÉ", 13, 16, RED), ("MP", "FOCO", 11, 16, BLUE), ("XP", "DIPLOMA", 15, 16, GREEN)]
-    for i, (k, lab, f, n, col) in enumerate(bars):
-        y = 66 + i * 44
-        x = 700
-        b.append(ptext(k, x, y, 2, col) + ptext(lab, x + 34, y, 2, GREY))
-        b.append(bar(x, y + 20, n, f, col, 12, 3))
-    b.append(f'<g class="bl">{ptext("+1 COMMIT", 720, 262, 2, YEL)}</g>')
-    st = BLINK + ".bob{animation:bob 1s steps(2,end) infinite}@keyframes bob{50%{transform:translateY(-6px)}}"
-    return svg(W, H, "".join(b), st, "Status")
+    # emblema do Galo
+    fx, fy, fw, fh = 740, 48, 210, 196
+    b.append(f'<rect x="{fx}" y="{fy}" width="{fw}" height="{fh}" fill="{BG}"/>')
+    b.append(f'<rect x="{fx}" y="{fy}" width="{fw}" height="{fh}" fill="none" stroke="{DGREY}" stroke-width="4"/>')
+    b.append(sprite(GALO, fx + 40, fy + 20, 10))
+    b.append(ptext_c("ATLÉTICO-MG", fx + fw // 2, fy + fh - 28, 2, GREY))
+    return svg(W, H, "".join(b), "", "Perfil")
 
 
-# ---------- 5. quest log ----------
+# ---------- 5. atuação ----------
 QUESTS = [
-    ("PRINCIPAL", RED, "IMPLEMENTAÇÕES GOHIGHLEVEL",
-     "CRMs para clientes reais: pipelines, workflows, formulários, calendários.", "ATIVA", GREEN),
-    ("PRINCIPAL", RED, "AGENTES DE IA",
-     "Conversation AI e Voice AI que atendem, qualificam e agendam.", "ATIVA", GREEN),
-    ("EXTRA", BLUE, "INTEGRAÇÕES",
-     "WhatsApp, webhooks e APIs conectando o CRM ao resto da operação.", "LVL UP", YEL),
+    ("IMPLEMENTAÇÕES GOHIGHLEVEL",
+     "CRMs para clientes reais: pipelines, workflows, formulários e calendários."),
+    ("AGENTES DE IA",
+     "Conversation AI e Voice AI que atendem, qualificam e agendam."),
+    ("INTEGRAÇÕES",
+     "WhatsApp, webhooks e APIs conectando o CRM ao resto da operação."),
 ]
 
 
 def quests():
     W = 1000
     H = 60 + len(QUESTS) * 74 + 20
-    b = [f'<rect width="{W}" height="{H}" fill="{BG}"/>', window(8, 18, W - 16, H - 26, "MISSÕES")]
-    for i, (tag, tcol, title, desc, stt, scol) in enumerate(QUESTS):
+    b = [f'<rect width="{W}" height="{H}" fill="{BG}"/>', window(8, 18, W - 16, H - 26, "ATUAÇÃO")]
+    for i, (title, desc) in enumerate(QUESTS):
         y = 50 + i * 74
         if i:
             b.append(f'<rect x="40" y="{y - 10}" width="{W - 80}" height="2" fill="{DGREY}"/>')
-        b.append(f'<rect x="40" y="{y + 4}" width="124" height="26" fill="{tcol}"/>')
-        b.append(ptext_c(tag, 102, y + 10, 2, WHITE))
-        b.append(ptext("!", 180, y + 10, 2, YEL, cls="bl"))
-        b.append(ptext(title, 202, y + 10, 2, WHITE))
-        b.append(f'<text x="202" y="{y + 52}" fill="{GREY}" style="{MONO};font-size:16px;font-weight:bold">'
+        b.append(f'<rect x="40" y="{y + 4}" width="56" height="26" fill="{BLUE}"/>')
+        b.append(ptext_c(f"{i + 1:02d}", 68, y + 10, 2, WHITE))
+        b.append(ptext(title, 120, y + 10, 2, WHITE))
+        b.append(f'<text x="120" y="{y + 52}" fill="{GREY}" style="{MONO};font-size:16px;font-weight:bold">'
                  f'{esc(desc)}</text>')
-        b.append(ptext(stt, W - 44 - text_w(stt, 2), y + 10, 2, scol))
-    return svg(W, H, "".join(b), BLINK, "Missões")
+    return svg(W, H, "".join(b), "", "Atuação")
 
 
 # ---------- 6. inventário ----------
@@ -438,25 +360,15 @@ def inventory():
 
 # ---------- 7. rodapé ----------
 def footer():
-    W, H = 1000, 230
-    b = [f'<rect width="{W}" height="{H}" fill="{BG}"/>', stars(W, 170, 40, 11)]
-    b.append(ptext_c("OBRIGADO POR JOGAR!", 500, 34, 4, YEL, shadow=RED))
-    b.append(ptext_c("CONTINUAR?", 470, 92, 3, WHITE))
-    cx = 470 + text_w("CONTINUAR?", 3) // 2 + 30
-    for k in range(10):
-        d = 9 - k
-        delay = 0 if k == 0 else -(10 - k)
-        b.append(f'<g class="cd" style="animation-delay:{delay}s">{ptext(str(d), cx, 92, 3, YEL)}</g>')
-    b.append(ptext_c("INSIRA UMA FICHA", 500, 136, 2, CYAN, cls="bl"))
-    b.append(ground(W, 200, 30))
-    b.append(sprite(HERO, 430, 152, 3, 'class="bob"'))
-    for i in range(3):
-        b.append(sprite(HEART, 30 + i * 30, 30, 3))
-    b.append(sprite(GALO, 530, 164, 3))
-    st = (TWINKLE + BLINK +
-          ".cd{opacity:0;animation:cd 10s steps(1,end) infinite}@keyframes cd{0%{opacity:1}10%,100%{opacity:0}}"
-          ".bob{animation:bob 1s steps(2,end) infinite}@keyframes bob{50%{transform:translateY(-4px)}}")
-    return svg(W, H, "".join(b), st, "Thanks for playing")
+    W, H = 1000, 210
+    b = [f'<rect width="{W}" height="{H}" fill="{BG}"/>', stars(W, 160, 25, 11, calm=True)]
+    b.append(ptext_c("VAMOS CONVERSAR?", 500, 36, 4, WHITE, shadow=BLUE))
+    b.append(f'<text x="500" y="118" text-anchor="middle" fill="{GREY}" '
+             f'style="{MONO};font-size:17px;font-weight:bold">'
+             f'linkedin.com/in/ygor-freire-374940291  ·  ygorfreire.dev@gmail.com</text>')
+    b.append(floor(W, 174, 36))
+    b.append(sprite(GALO, 0, 138, 3, 'class="walk"'))
+    return svg(W, H, "".join(b), TWINKLE + WALK, "Vamos conversar?")
 
 
 if __name__ == "__main__":
