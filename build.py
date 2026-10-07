@@ -278,7 +278,6 @@ def header():
     b.append(f'<rect x="{500 - 60}" y="134" width="120" height="4" fill="{CYAN}"/>')
     b.append(ptext_c("IMPLEMENTAÇÃO & AUTOMAÇÃO DE CRM", 500, 152, 2, CYAN))
     b.append(ptext_c("GOHIGHLEVEL * AGENTES DE IA * INTEGRAÇÕES", 500, 176, 2, GREY))
-    b.append(escudo(110, 56, 120))
     chao = 284
     b.append(floor(W, chao, 36))
     sc = 3
