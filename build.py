@@ -145,33 +145,30 @@ GALO = [
 ]
 
 
-def escudo():
-    """Escudo pixel inspirado no do Galo: estrela, faixa CAM e listras preto/branco."""
-    W = 17
-    star = ["...y...", "..yyy..", "yyyyyyy", ".yyyyy.", ".yy.yy."]
-    rows = ["." * 5 + s + "." * 5 for s in star] + ["." * W]
-    rows.append("l" * W)
-    letters = {  # C, A, M (5 linhas)
-        "C": ["kkk", "kww", "kww", "kww", "kkk"],
-        "A": ["wkw", "kwk", "kkk", "kwk", "kwk"],
-        "M": ["kwwwk", "kkwkk", "kwkwk", "kwwwk", "kwwwk"],
-    }
-    rows.append("l" + "w" * (W - 2) + "l")
-    for r in range(5):
-        rows.append("lw" + letters["C"][r] + "w" + letters["A"][r] + "w" + letters["M"][r] + "wl")
-    rows.append("l" + "w" * (W - 2) + "l")
-    rows.append("l" * W)
-
-    def faixa(lo, hi):
-        return "".join("." if c < lo or c > hi else "l" if c in (lo, hi) else ("k" if c % 2 else "w")
-                       for c in range(W))
-    rows += [faixa(0, 16)] * 7
-    rows += [faixa(1, 15), faixa(2, 14), faixa(3, 13), faixa(5, 11), faixa(7, 9)]
-    rows.append("." * 8 + "l" + "." * 8)
-    return rows
+TROFEU = [
+    "..yyyyyy..",
+    "yyywyyyyyy",
+    "y.ywyyyy.y",
+    "y.yyyyyy.y",
+    ".yyyyyyyy.",
+    "..yyyyyy..",
+    "...yyyy...",
+    "....yy....",
+    "....yy....",
+    "..oooooo..",
+    "..oooooo..",
+]
 
 
-ESCUDO = escudo()
+def escudo(x, y, h):
+    """Escudo do Atlético (PNG enviado pelo Ygor) embutido no SVG."""
+    import base64
+    from PIL import Image
+    p = Path(__file__).parent / "assets" / "escudo-cam.png"
+    w = round(h * Image.open(p).width / Image.open(p).height)
+    data = base64.b64encode(p.read_bytes()).decode()
+    return (f'<image x="{x}" y="{y}" width="{w}" height="{h}" style="image-rendering:pixelated" '
+            f'href="data:image/png;base64,{data}"/>')
 
 
 def sprite(rows, x, y, sc, extra=""):
@@ -254,13 +251,22 @@ def header():
     b = [f'<rect width="{W}" height="{H}" fill="{BG}"/>', stars(W, 230, 40, 7, calm=True)]
     b.append(ptext("YGORMARQUES7", 30, 24, 2, GREY))
     b.append(ptext("MINAS GERAIS * BR", 970 - text_w("MINAS GERAIS * BR", 2), 24, 2, GREY))
-    b.append(ptext_c("YGOR MARQUES", 500, 78, 7, WHITE, shadow=BLUE))
-    b.append(f'<rect x="{500 - 60}" y="148" width="120" height="4" fill="{CYAN}"/>')
-    b.append(ptext_c("IMPLEMENTAÇÃO & AUTOMAÇÃO DE CRM", 500, 168, 2, CYAN))
-    b.append(ptext_c("GOHIGHLEVEL * AGENTES DE IA * INTEGRAÇÕES", 500, 194, 2, GREY))
+    b.append(ptext_c("YGOR MARQUES", 500, 66, 7, WHITE, shadow=BLUE))
+    b.append(f'<rect x="{500 - 60}" y="134" width="120" height="4" fill="{CYAN}"/>')
+    b.append(ptext_c("IMPLEMENTAÇÃO & AUTOMAÇÃO DE CRM", 500, 152, 2, CYAN))
+    b.append(ptext_c("GOHIGHLEVEL * AGENTES DE IA * INTEGRAÇÕES", 500, 176, 2, GREY))
+    b.append(escudo(110, 56, 120))
     b.append(floor(W, 244, 36))
-    b.append(sprite(ESCUDO, 905, 244 - len(ESCUDO) * 3, 3))
-    return svg(W, H, "".join(b), TWINKLE, "Ygor Marques - Implementação & Automação de CRM")
+    tro = "".join(f'<g class="hop" style="animation-delay:-{i * .35:.2f}s">'
+                  f'{sprite(TROFEU, 70 + i * 54, 244 - 33, 3)}</g>' for i in range(2))
+    b.append(f'<g class="walk"><g class="bob">{sprite(GALO, 0, 244 - 36, 3)}</g>{tro}</g>')
+    st = (TWINKLE +
+          ".walk{animation:walk 22s steps(220,end) infinite}"
+          "@keyframes walk{from{transform:translateX(-200px)}to{transform:translateX(1000px)}}"
+          ".bob{animation:bob .5s steps(2,end) infinite}@keyframes bob{50%{transform:translateY(-2px)}}"
+          ".hop{animation:hop .7s steps(4,end) infinite}"
+          "@keyframes hop{0%,100%{transform:none}50%{transform:translateY(-10px)}}")
+    return svg(W, H, "".join(b), st, "Ygor Marques - Implementação & Automação de CRM")
 
 
 # ---------- 2. botões ----------
@@ -321,7 +327,7 @@ def status():
     fx, fy, fw, fh = 740, 48, 210, 196
     b.append(f'<rect x="{fx}" y="{fy}" width="{fw}" height="{fh}" fill="{BG}"/>')
     b.append(f'<rect x="{fx}" y="{fy}" width="{fw}" height="{fh}" fill="none" stroke="{DGREY}" stroke-width="4"/>')
-    b.append(sprite(ESCUDO, fx + (fw - 17 * 5) // 2, fy + 12, 5))
+    b.append(escudo(fx + (fw - 105) // 2, fy + 10, 150))
     b.append(ptext_c("ATLÉTICO-MG", fx + fw // 2, fy + fh - 28, 2, GREY))
     return svg(W, H, "".join(b), "", "Perfil")
 

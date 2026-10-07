@@ -33,7 +33,7 @@ PAL.update({"1": PURPLE, "2": ORANGE, "3": "#e43b8f"})
 
 CELL, GAP = 14, 3
 STEP = CELL + GAP
-TC = 0.1  # segundos por quadradinho
+TC = 0.12  # segundos por quadradinho
 ATRASOS = [4, 7, 10]  # quantos quadradinhos cada bicho vem atrás do Galo
 
 
@@ -55,16 +55,25 @@ def gerar(cal):
     gy = 88
     H = gy + 7 * STEP + 34
 
-    # caminho em zigue-zague, coluna por coluna (desce, sobe, desce...)
-    pts = []
+    # caminho estilo Pac-Man: linha por linha, ida e volta (esquerda->direita, direita->esquerda...)
+    por_dia = {}
     for c, wk in enumerate(weeks):
-        dias = sorted(wk["contributionDays"], key=lambda d: d["weekday"])
-        if c % 2:
-            dias = dias[::-1]
-        for d in dias:
-            pts.append((gx + c * STEP + CELL // 2, gy + d["weekday"] * STEP + CELL // 2, d))
-    n = len(pts)
-    dur = n * TC
+        for d in wk["contributionDays"]:
+            por_dia[(d["weekday"], c)] = d
+    pts, sentido = [], []
+    for r in range(7):
+        cols = range(len(weeks)) if r % 2 == 0 else range(len(weeks) - 1, -1, -1)
+        for c in cols:
+            if (r, c) in por_dia:
+                pts.append((gx + c * STEP + CELL // 2, gy + r * STEP + CELL // 2, por_dia[(r, c)]))
+                sentido.append(1 if r % 2 == 0 else -1)
+    # distância acumulada: o movimento é pela distância, então o "comer" usa a mesma fração
+    dist = [0.0]
+    for (x0, y0, _), (x1, y1, _) in zip(pts, pts[1:]):
+        dist.append(dist[-1] + ((x1 - x0) ** 2 + (y1 - y0) ** 2) ** .5)
+    D = dist[-1]
+    frac = [d / D for d in dist]
+    dur = D / STEP * TC
     lider = max(ATRASOS) * TC  # Galo começa à frente dos bichos
 
     total = cal["totalContributions"]
@@ -79,24 +88,38 @@ def gerar(cal):
         cor = NIVEL.get(d["contributionLevel"])
         if not cor:
             continue
-        f = i / n
+        f = frac[i]
         b.append(f'<rect x="{x - CELL // 2}" y="{y - CELL // 2}" width="{CELL}" height="{CELL}" fill="{cor}">'
                  f'<animate attributeName="opacity" values="1;0" keyTimes="0;{f:.4f}" calcMode="discrete" '
                  f'dur="{dur:.1f}s" begin="-{lider:.1f}s" repeatCount="indefinite"/></rect>')
 
     caminho = "M" + " L".join(f"{x} {y}" for x, y, _ in pts)
 
-    def ator(rows, sc, begin, cls):
+    def mov(begin):
+        return (f'<animateMotion path="{caminho}" dur="{dur:.2f}s" begin="{begin:.2f}s" '
+                f'repeatCount="indefinite" calcMode="paced"/>')
+
+    def sp(rows, sc):
         w, h = len(rows[0]) * sc, len(rows) * sc
-        return (f'<g><g class="{cls}">{sprite(rows, -w // 2, -h // 2, sc)}</g>'
-                f'<animateMotion path="{caminho}" dur="{dur:.1f}s" begin="{begin:.1f}s" '
-                f'repeatCount="indefinite" calcMode="linear"/></g>')
+        return sprite(rows, -w // 2, -h // 2, sc)
 
     for j, atraso in enumerate(ATRASOS):
-        cor = str(j + 1)
-        rows = [r.replace("c", cor) for r in BICHO]
-        b.append(ator(rows, 2, -(max(ATRASOS) - atraso) * TC, "flu"))
-    b.append(ator(GALO, 2, -lider, "pula"))
+        rows = [r.replace("c", str(j + 1)) for r in BICHO]
+        b.append(f'<g><g class="flu">{sp(rows, 2)}</g>{mov(-(max(ATRASOS) - atraso) * TC)}</g>')
+
+    # Galo virado para o lado em que anda: duas versões trocadas na virada de cada linha
+    trocas = [0.0] + [frac[i] for i in range(1, len(pts)) if sentido[i] != sentido[i - 1]]
+    vals_d = ";".join("1" if k % 2 == 0 else "0" for k in range(len(trocas)))
+    vals_e = ";".join("0" if k % 2 == 0 else "1" for k in range(len(trocas)))
+    kt = ";".join(f"{t:.4f}" for t in trocas)
+
+    def lado(vals):
+        return (f'<animate attributeName="opacity" values="{vals}" keyTimes="{kt}" calcMode="discrete" '
+                f'dur="{dur:.2f}s" begin="-{lider:.2f}s" repeatCount="indefinite"/>')
+
+    galo = sp(GALO, 2)
+    b.append(f'<g><g class="pula"><g>{galo}{lado(vals_d)}</g>'
+             f'<g transform="scale(-1,1)" opacity="0">{galo}{lado(vals_e)}</g></g>{mov(-lider)}</g>')
 
     st = (".pula{animation:pula .3s steps(2,end) infinite}@keyframes pula{50%{transform:translateY(-2px)}}"
           ".flu{animation:flu .5s steps(2,end) infinite}@keyframes flu{50%{transform:translateY(1px)}}")
