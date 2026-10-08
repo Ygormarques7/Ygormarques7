@@ -358,72 +358,87 @@ def button(label, col, icone):
 
 
 # ---------- 3. sobre ----------
-MALETA = [
-    "....llll....",
-    "...l....l...",
-    "oooooooooooo",
-    "oyyyyyyyyyyo",
-    "oyyyyyyyyyyo",
-    "ooooowwooooo",
-    "oyyyyyyyyyyo",
-    "oyyyyyyyyyyo",
-    "oooooooooooo",
-]
-CAPELO = [
-    "......ww......",
-    "....wwwwww....",
-    "..wwwwwwwwww..",
-    "wwwwwwwwwwwwww",
-    "..wwwwwwwwwwy.",
-    "...gggggggg.y.",
-    "...gggggggg.y.",
-    "....gggggg..yy",
+# código do "Sobre": cada linha é uma lista de (texto, cor)
+KW, CLS, STR, COM, PUN = "#e06c9f", YEL, GREEN, GREY, WHITE
+CODIGO = [
+    [("# sobre.py: quem sou eu", COM)],
+    [("class ", KW), ("Ygor", CLS), ("(", PUN), ("Dev", CYAN), ("):", PUN)],
+    [("    cargo   = ", PUN), ('"Implementação & Automação de CRM"', STR)],
+    [("    empresa = ", PUN), ('"AVA Partners"', STR)],
+    [],
+    [("    def ", KW), ("trabalho", CYAN), ("(", PUN), ("self", ORANGE), ("):", PUN)],
+    [("        return ", KW), ("[", PUN), ('"GoHighLevel"', STR), (", ", PUN), ('"pipelines"', STR),
+     (", ", PUN), ('"workflows"', STR), (",", PUN)],
+    [("                ", PUN), ('"agentes de IA"', STR), (", ", PUN), ('"Conversation AI"', STR),
+     (", ", PUN), ('"Voice AI"', STR), (",", PUN)],
+    [("                ", PUN), ('"WhatsApp"', STR), (", ", PUN), ('"integrações via API"', STR), ("]", PUN)],
+    [],
+    [("    def ", KW), ("formacao", CYAN), ("(", PUN), ("self", ORANGE), ("):", PUN)],
+    [("        return ", KW), ('"Ciência da Computação @ Univértix · 8º período"', STR)],
 ]
 
 
 def dialog():
-    W, H = 1000, 300
+    W = 1000
+    LH, FS, CW = 24, 16, 9.6  # altura da linha, fonte, largura de um caractere (monospace 0,6em)
+    top = 96
+    H = top + len(CODIGO) * LH + 66
     b = [f'<rect width="{W}" height="{H}" fill="{BG}"/>', window(8, 18, W - 16, H - 26, "SOBRE")]
-    # retrato estilo "seleção de personagem" com o Galo
-    px, py, pw, ph = 40, 46, 180, 222
-    b.append(f'<rect x="{px}" y="{py}" width="{pw}" height="{ph}" fill="#151a33"/>')
-    b.append(f'<rect x="{px + 4}" y="{py + 150}" width="{pw - 8}" height="4" fill="{BLUE}"/>')
-    sc = 5
-    gx, gy = px + (pw - 22 * sc) // 2, py + 150 - 20 * sc
-    b.append("".join(f'<g class="q{i}">{sprite(GALO_CORPO + p, gx, gy, sc)}</g>' for i, p in enumerate(GALO_PERNAS)))
-    b.append(f'<rect x="{px}" y="{py}" width="{pw}" height="{ph}" fill="none" stroke="{DGREY}" stroke-width="4"/>')
-    b.append(f'<rect x="{px + 20}" y="{py + ph - 50}" width="{pw - 40}" height="30" fill="{BLUE}"/>')
-    b.append(ptext_c("YGOR", px + pw // 2, py + ph - 42, 2, WHITE))
+    # barra de abas do editor
+    b.append(f'<rect x="22" y="32" width="{W - 44}" height="36" fill="#151a33"/>')
+    b.append(f'<rect x="22" y="32" width="170" height="36" fill="{PANEL}"/>')
+    b.append(f'<rect x="22" y="32" width="170" height="4" fill="{CYAN}"/>')
+    b.append(ptext("SOBRE.PY", 44, 44, 2, WHITE))
+    b.append(ptext("X", 168, 44, 2, GREY))
+    # números das linhas
+    x0 = 92
+    for i in range(len(CODIGO)):
+        y = top + i * LH
+        b.append(f'<text x="70" y="{y}" text-anchor="end" fill="{DGREY}" '
+                 f'style="{MONO};font-size:{FS}px;font-weight:bold">{i + 1}</text>')
+    b.append(f'<rect x="80" y="{top - 18}" width="2" height="{len(CODIGO) * LH}" fill="{DGREY}"/>')
 
-    x0 = 254
-    b.append(ptext("OLÁ! EU SOU O YGOR", x0, 50, 3, WHITE))
-    b.append(f'<rect x="{x0}" y="80" width="64" height="4" fill="{CYAN}"/>')
+    # linha do tempo da digitação: um caractere por passo
+    dt, espera = 0.03, 6.0
+    t, passos = 0.4, []  # (tempo, x do cursor, y da linha)
+    inicio = []
+    for i, partes in enumerate(CODIGO):
+        n = sum(len(tx) for tx, _ in partes)
+        inicio.append((t, n))
+        for k in range(n + 1):
+            passos.append((t + k * dt, x0 + k * CW, top + i * LH))
+        t += n * dt + 0.25
+    dur = t + espera
 
-    # linhas com palavras-chave coloridas
-    linhas = [
-        (136, [("Implemento e automatizo operações de CRM no ", WHITE), ("GoHighLevel", CYAN)]),
-        (162, [("na ", WHITE), ("AVA Partners", YEL), (": pipelines, workflows, ", WHITE), ("agentes de IA", GREEN)]),
-        (188, [("(", WHITE), ("Conversation AI", GREEN), (" e ", WHITE), ("Voice AI", GREEN), ("), ", WHITE),
-               ("WhatsApp", GREEN), (" e integrações via ", WHITE), ("API", CYAN), (".", WHITE)]),
-        (256, [("Graduando em ", WHITE), ("Ciência da Computação", CYAN), (" na ", WHITE), ("Univértix", YEL),
-               (" · 8º período", GREY)]),
-    ]
-    b.append(sprite(MALETA, x0, 100, 2) + ptext("TRABALHO", x0 + 36, 103, 2, CYAN))
-    b.append(sprite(CAPELO, x0 - 2, 214, 2) + ptext("FORMAÇÃO", x0 + 36, 219, 2, CYAN))
-    total = 6.0
-    for i, (y, partes) in enumerate(linhas):
-        t0, t1 = (0.3 + i * 1.3) / total, (1.6 + i * 1.3) / total
-        spans = "".join(f'<tspan fill="{c}">{esc(t)}</tspan>' for t, c in partes)
-        b.append(f'<clipPath id="c{i}"><rect x="{x0 - 4}" y="{y - 20}" height="28" width="720">'
-                 f'<animate attributeName="width" values="0;0;720" keyTimes="0;{t0:.3f};{t1:.3f}" '
-                 f'dur="{total}s" begin="0s" fill="freeze"/></rect></clipPath>')
-        b.append(f'<text x="{x0}" y="{y}" clip-path="url(#c{i})" '
-                 f'style="{MONO};font-size:17px;font-weight:bold">{spans}</text>')
-    b.append(f'<g class="bl">{sprite(["yyyyy", ".yyy.", "..y.."], 944, 252, 3)}</g>')
-    st = (BLINK +
-          ".q0{animation:q0 .6s steps(1,end) infinite}@keyframes q0{50%{opacity:0}}"
-          ".q1{opacity:0;animation:q1 .6s steps(1,end) infinite}@keyframes q1{50%{opacity:1}}")
-    return svg(W, H, "".join(b), st, "Sobre")
+    for i, partes in enumerate(CODIGO):
+        if not partes:
+            continue
+        y = top + i * LH
+        t0, n = inicio[i]
+        vals = ["0"] + [f"{k * CW:.1f}" for k in range(n + 1)]
+        kts = ["0"] + [f"{(t0 + k * dt) / dur:.4f}" for k in range(n + 1)]
+        spans = "".join(f'<tspan fill="{c}">{esc(tx)}</tspan>' for tx, c in partes)
+        b.append(f'<clipPath id="c{i}"><rect x="{x0}" y="{y - 18}" height="{LH}" width="{n * CW + 10:.1f}">'
+                 f'<animate attributeName="width" values="{";".join(vals)}" keyTimes="{";".join(kts)}" '
+                 f'calcMode="discrete" dur="{dur:.2f}s" repeatCount="indefinite"/></rect></clipPath>')
+        b.append(f'<text x="{x0}" y="{y}" clip-path="url(#c{i})" xml:space="preserve" '
+                 f'style="{MONO};font-size:{FS}px;font-weight:bold">{spans}</text>')
+
+    # cursor que acompanha a digitação
+    kt = ";".join(["0"] + [f"{p[0] / dur:.4f}" for p in passos])
+    xs = ";".join([str(x0)] + [f"{p[1]:.1f}" for p in passos])
+    ys = ";".join([str(top - 15)] + [str(p[2] - 15) for p in passos])
+    b.append(f'<g><rect x="{passos[-1][1]:.1f}" y="{passos[-1][2] - 15}" width="{CW:.1f}" height="18" fill="{CYAN}">'
+             f'<animate attributeName="x" values="{xs}" keyTimes="{kt}" calcMode="discrete" dur="{dur:.2f}s" repeatCount="indefinite"/>'
+             f'<animate attributeName="y" values="{ys}" keyTimes="{kt}" calcMode="discrete" dur="{dur:.2f}s" repeatCount="indefinite"/>'
+             f'</rect></g>')
+
+    # barra de status
+    sy = H - 44
+    b.append(f'<rect x="22" y="{sy}" width="{W - 44}" height="24" fill="{BLUE}"/>')
+    b.append(ptext("PYTHON  *  UTF-8  *  MAIN", 36, sy + 5, 2, WHITE))
+    b.append(sprite(GALO, W - 64, sy - 14, 2))
+    return svg(W, H, "".join(b), BLINK, "Sobre: class Ygor")
 
 
 # ---------- 4. perfil ----------
