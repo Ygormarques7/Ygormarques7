@@ -5,20 +5,20 @@ from pathlib import Path
 OUT = Path(__file__).parent / "assets"
 
 # ---------- paleta ----------
-BG = "#0d0b1e"
-PANEL = "#14122b"
+BG = "#0b0b0c"
+PANEL = "#131315"
 WHITE = "#f4f4f4"
 YEL = "#feae34"
 RED = "#e43b44"
 CYAN = "#2ce8f5"
 GREEN = "#63c74d"
 DGREEN = "#265c42"
-BLUE = "#3b5dc9"
-DBLUE = "#29366f"
+BLUE = "#3a3a40"
+DBLUE = "#26262b"
 PURPLE = "#b55088"
 ORANGE = "#f77622"
-GREY = "#8b9bb4"
-DGREY = "#3a4466"
+GREY = "#9a9aa2"
+DGREY = "#3c3c44"
 MONO = "font-family:'Courier New',Courier,monospace"
 
 # ---------- fonte pixel 5x7 ----------
@@ -228,7 +228,7 @@ TWINKLE = ".tw{animation:tw 3s steps(2,end) infinite}@keyframes tw{50%{opacity:.
 BLINK = ".bl{animation:bl 1.2s steps(1,end) infinite}@keyframes bl{50%{opacity:0}}"
 
 
-def window(x, y, w, h, title=None, tcol=YEL):
+def window(x, y, w, h, title=None, tcol=WHITE):
     """Janela estilo RPG: borda dupla com cantos em degrau."""
     o = [f'<rect x="{x + 4}" y="{y}" width="{w - 8}" height="{h}" fill="{WHITE}"/>',
          f'<rect x="{x}" y="{y + 4}" width="{w}" height="{h - 8}" fill="{WHITE}"/>',
@@ -251,14 +251,14 @@ def esc(s):
 # ---------- 1. header ----------
 def floor(w, y, h):
     """Piso discreto em azul-ardósia (substitui a grama/tijolo)."""
-    out = [f'<rect x="0" y="{y}" width="{w}" height="{h}" fill="#151a33"/>',
-           f'<rect x="0" y="{y}" width="{w}" height="4" fill="{BLUE}"/>',
+    out = [f'<rect x="0" y="{y}" width="{w}" height="{h}" fill="#18181b"/>',
+           f'<rect x="0" y="{y}" width="{w}" height="2" fill="{CYAN}"/>',
            f'<rect x="0" y="{y + 4}" width="{w}" height="2" fill="{DBLUE}"/>']
     for ty in range(y + 6, y + h, 16):
-        out.append(f'<rect x="0" y="{ty + 14}" width="{w}" height="2" fill="#0f1226"/>')
+        out.append(f'<rect x="0" y="{ty + 14}" width="{w}" height="2" fill="#0b0b0c"/>')
         off = 16 if (ty - y) // 16 % 2 else 0
         for tx in range(-off, w, 32):
-            out.append(f'<rect x="{tx}" y="{ty}" width="2" height="16" fill="#0f1226"/>')
+            out.append(f'<rect x="{tx}" y="{ty}" width="2" height="16" fill="#0b0b0c"/>')
     return "".join(out)
 
 
@@ -378,7 +378,7 @@ def dialog():
     H = top + len(CODIGO) * LH + 66
     b = [f'<rect width="{W}" height="{H}" fill="{BG}"/>', window(8, 18, W - 16, H - 26, "SOBRE")]
     # barra de abas do editor
-    b.append(f'<rect x="22" y="32" width="{W - 44}" height="36" fill="#151a33"/>')
+    b.append(f'<rect x="22" y="32" width="{W - 44}" height="36" fill="#18181b"/>')
     b.append(f'<rect x="22" y="32" width="170" height="36" fill="{PANEL}"/>')
     b.append(f'<rect x="22" y="32" width="170" height="4" fill="{CYAN}"/>')
     b.append(ptext("SOBRE.PY", 44, 44, 2, WHITE))
@@ -448,17 +448,6 @@ PERFIL_JSON = [
     [("}", SINAL)],
 ]
 
-ATUACAO_YML = [
-    [("# o que eu faço no dia a dia", COM)],
-    [("- ", SINAL), ("area", CHAVE), (": ", SINAL), ("Implementações GoHighLevel", VALOR)],
-    [("  faz", CHAVE), (": ", SINAL), ("CRMs para clientes reais: pipelines, workflows, formulários e calendários", VALOR)],
-    [("- ", SINAL), ("area", CHAVE), (": ", SINAL), ("Agentes de IA", VALOR)],
-    [("  faz", CHAVE), (": ", SINAL), ("Conversation AI e Voice AI que atendem, qualificam e agendam", VALOR)],
-    [("- ", SINAL), ("area", CHAVE), (": ", SINAL), ("Integrações", VALOR)],
-    [("  faz", CHAVE), (": ", SINAL), ("WhatsApp, webhooks e APIs conectando o CRM ao resto da operação", VALOR)],
-]
-
-
 def editor(titulo, arquivo, linguagem, linhas):
     """Janela com aba, números de linha e barra de status (mesmo visual do Sobre, sem digitação)."""
     W, LH, FS = 1000, 24, 16
@@ -466,7 +455,7 @@ def editor(titulo, arquivo, linguagem, linhas):
     H = top + len(linhas) * LH + 66
     b = [f'<rect width="{W}" height="{H}" fill="{BG}"/>', window(8, 18, W - 16, H - 26, titulo)]
     tab_w = text_w(arquivo, 2) + 70
-    b.append(f'<rect x="22" y="32" width="{W - 44}" height="36" fill="#151a33"/>')
+    b.append(f'<rect x="22" y="32" width="{W - 44}" height="36" fill="#18181b"/>')
     b.append(f'<rect x="22" y="32" width="{tab_w}" height="36" fill="{PANEL}"/>')
     b.append(f'<rect x="22" y="32" width="{tab_w}" height="4" fill="{CYAN}"/>')
     b.append(ptext(arquivo, 44, 44, 2, WHITE))
@@ -489,15 +478,37 @@ def status():
     return editor("PERFIL", "PERFIL.JSON", "JSON", PERFIL_JSON)
 
 
+QUESTS = [
+    ("IMPLEMENTAÇÕES GOHIGHLEVEL",
+     "CRMs para clientes reais: pipelines, workflows, formulários e calendários."),
+    ("AGENTES DE IA",
+     "Conversation AI e Voice AI que atendem, qualificam e agendam."),
+    ("INTEGRAÇÕES",
+     "WhatsApp, webhooks e APIs conectando o CRM ao resto da operação."),
+]
+
+
 def quests():
-    return editor("ATUAÇÃO", "ATUACAO.YML", "YAML", ATUACAO_YML)
+    W = 1000
+    H = 60 + len(QUESTS) * 74 + 20
+    b = [f'<rect width="{W}" height="{H}" fill="{BG}"/>', window(8, 18, W - 16, H - 26, "ATUAÇÃO")]
+    for i, (title, desc) in enumerate(QUESTS):
+        y = 50 + i * 74
+        if i:
+            b.append(f'<rect x="40" y="{y - 10}" width="{W - 80}" height="2" fill="{DGREY}"/>')
+        b.append(f'<rect x="40" y="{y + 4}" width="56" height="26" fill="{BLUE}"/>')
+        b.append(ptext_c(f"{i + 1:02d}", 68, y + 10, 2, CYAN))
+        b.append(ptext(title, 120, y + 10, 2, WHITE))
+        b.append(f'<text x="120" y="{y + 52}" fill="{GREY}" style="{MONO};font-size:16px;font-weight:bold">'
+                 f'{esc(desc)}</text>')
+    return svg(W, H, "".join(b), "", "Atuação")
 
 
 # ---------- 6. inventário ----------
 ITEMS = [
     ("JS", "JavaScript", "#f7df1e"), ("RCT", "React", "#61dafb"), ("RN", "React Native", "#61dafb"),
     ("JAV", "Java", ORANGE), ("PY", "Python", "#4b8bbe"), ("</>", "HTML", "#e34f26"),
-    ("{}", "CSS", "#2965f1"), ("GIT", "Git & GitHub", "#f05032"), ("AWS", "AWS", "#ff9900"),
+    ("{}", "CSS", "#2965f1"), ("GIT", "Git & GitHub", "#f05032"),
     ("GHL", "GoHighLevel", CYAN), ("API", "APIs & Webhooks", GREEN), ("IA", "Claude & IA", "#d97757"),
 ]
 
@@ -510,7 +521,10 @@ def inventory():
     H = 60 + rows * (sh + gap) + 22
     b = [f'<rect width="{W}" height="{H}" fill="{BG}"/>', window(8, 18, W - 16, H - 26, "INVENTÁRIO")]
     for i, (ab, name, col) in enumerate(ITEMS):
-        x = gx + (i % cols) * (sw + gap)
+        resto = len(ITEMS) - (i // cols) * cols
+        na_linha = min(cols, resto)
+        lx = (W - (na_linha * sw + (na_linha - 1) * gap)) // 2
+        x = lx + (i % cols) * (sw + gap)
         y = 48 + (i // cols) * (sh + gap)
         b.append(f'<rect x="{x}" y="{y}" width="{sw}" height="{sh}" fill="{BG}"/>')
         b.append(f'<rect x="{x}" y="{y}" width="{sw}" height="{sh}" fill="none" stroke="{DGREY}" stroke-width="4"/>')
@@ -526,8 +540,10 @@ def inventory():
 
 # ---------- 6b. jogo: Galo atrás dos títulos no labirinto ----------
 # Percurso fechado (coluna, linha) pelos corredores; o resto do labirinto é parede.
-PERCURSO = [(1, 1), (11, 1), (11, 3), (22, 3), (22, 1), (33, 1), (33, 9), (26, 9), (26, 5),
-            (18, 5), (18, 9), (7, 9), (7, 5), (4, 5), (4, 9), (1, 9), (1, 1)]
+PERCURSO = [(1, 1), (5, 1), (5, 3), (9, 3), (9, 1), (15, 1), (15, 3), (19, 3), (19, 1), (25, 1),
+            (25, 3), (29, 3), (29, 1), (33, 1), (33, 5), (29, 5), (29, 7), (33, 7), (33, 9), (25, 9),
+            (25, 5), (21, 5), (21, 9), (13, 9), (13, 7), (17, 7), (17, 5), (9, 5), (9, 9), (5, 9),
+            (5, 7), (1, 7), (1, 1)]
 MZ_COLS, MZ_ROWS, MZ_CELL = 35, 11, 26
 MZ_TC = 0.18  # segundos por casa
 
@@ -566,6 +582,10 @@ def jogo():
             b.append(f'<rect x="{x}" y="{y}" width="{t}" height="{MZ_CELL}" fill="{PAREDE}"/>')
         if (c + 1, r) not in corredor:
             b.append(f'<rect x="{x + MZ_CELL - t}" y="{y}" width="{t}" height="{MZ_CELL}" fill="{PAREDE}"/>')
+    # borda externa do labirinto (linha dupla, como no Pac-Man)
+    for m in (6, 12):
+        b.append(f'<rect x="{ox + m}" y="{oy + m}" width="{MZ_COLS * MZ_CELL - 2 * m}" '
+                 f'height="{MZ_ROWS * MZ_CELL - 2 * m}" fill="none" stroke="{PAREDE}" stroke-width="3"/>')
     # barras internas (como os blocos do Pac-Man), em linhas alternadas
     def livre(c, r):
         return (0 < c < MZ_COLS - 1 and 0 < r < MZ_ROWS - 1 and (c, r) not in corredor and
@@ -586,7 +606,7 @@ def jogo():
             c += 1  # espaço entre barras
 
     lider = 12 * MZ_TC  # o Galo começa 12 casas à frente do ponto de partida
-    cantos = {(1, 1), (33, 1), (33, 9), (1, 9)}
+    cantos = {(1, 1), (33, 1), (33, 9), (1, 7)}
     for i, (c, r) in enumerate(casas):
         x, y = centro(c, r)
         f = i / n

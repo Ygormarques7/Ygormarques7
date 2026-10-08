@@ -1,21 +1,21 @@
 <div align="center">
 
-<img src="assets/header.svg?v=7" width="100%" alt="Ygor Marques - Implementação & Automação de CRM com GoHighLevel - título 8-bit" />
+<img src="assets/header.svg?v=20" width="100%" alt="Ygor Marques - Implementação & Automação de CRM com GoHighLevel - título 8-bit" />
 
-<a href="https://www.linkedin.com/in/ygor-freire-374940291"><img src="assets/btn-linkedin.svg?v=8" height="48" alt="LinkedIn" /></a>
-<a href="mailto:ygorfreire.dev@gmail.com"><img src="assets/btn-email.svg?v=8" height="48" alt="Email" /></a>
-<a href="https://github.com/Ygormarques7?tab=repositories"><img src="assets/btn-repos.svg?v=8" height="48" alt="Repositórios" /></a>
+<a href="https://www.linkedin.com/in/ygor-freire-374940291"><img src="assets/btn-linkedin.svg?v=20" height="48" alt="LinkedIn" /></a>
+<a href="mailto:ygorfreire.dev@gmail.com"><img src="assets/btn-email.svg?v=20" height="48" alt="Email" /></a>
+<a href="https://github.com/Ygormarques7?tab=repositories"><img src="assets/btn-repos.svg?v=20" height="48" alt="Repositórios" /></a>
 
-<img src="assets/dialog.svg?v=10" width="100%" alt="Sobre: implemento e automatizo operações de CRM no GoHighLevel na AVA Partners: pipelines, workflows, agentes de IA (Conversation AI e Voice AI), WhatsApp e integrações via API para clientes reais. Graduando em Ciência da Computação na Univértix (8º período)." />
+<img src="assets/dialog.svg?v=20" width="100%" alt="Sobre: implemento e automatizo operações de CRM no GoHighLevel na AVA Partners: pipelines, workflows, agentes de IA (Conversation AI e Voice AI), WhatsApp e integrações via API para clientes reais. Graduando em Ciência da Computação na Univértix (8º período)." />
 
-<img src="assets/status.svg?v=6" width="100%" alt="Perfil: Implementação & Automação de CRM na AVA Partners, Ciência da Computação na Univértix (8º período), Minas Gerais, Brasil" />
+<img src="assets/status.svg?v=20" width="100%" alt="Perfil: Implementação & Automação de CRM na AVA Partners, Ciência da Computação na Univértix (8º período), Minas Gerais, Brasil" />
 
-<img src="assets/quests.svg?v=6" width="100%" alt="Atuação: implementações GoHighLevel, agentes de IA (Conversation AI e Voice AI), integrações com WhatsApp, webhooks e APIs" />
+<img src="assets/quests.svg?v=20" width="100%" alt="Atuação: implementações GoHighLevel, agentes de IA (Conversation AI e Voice AI), integrações com WhatsApp, webhooks e APIs" />
 
-<img src="assets/inventory.svg?v=5" width="100%" alt="Inventário: JavaScript, React, React Native, Java, Python, HTML, CSS, Git, AWS, GoHighLevel, APIs & Webhooks, Claude & IA" />
+<img src="assets/inventory.svg?v=20" width="100%" alt="Inventário: JavaScript, React, React Native, Java, Python, HTML, CSS, Git, AWS, GoHighLevel, APIs & Webhooks, Claude & IA" />
 
-<img src="assets/jogo.svg?v=1" width="100%" alt="Caça aos títulos: o Galo correndo atrás dos troféus num labirinto estilo Pac-Man" />
+<img src="assets/jogo.svg?v=20" width="100%" alt="Caça aos títulos: o Galo correndo atrás dos troféus num labirinto estilo Pac-Man" />
 
-<img src="assets/footer.svg?v=5" width="100%" alt="Vamos conversar? LinkedIn e email" />
+<img src="assets/footer.svg?v=20" width="100%" alt="Vamos conversar? LinkedIn e email" />
 
 </div>
