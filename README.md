@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="assets/header.svg?v=20" width="100%" alt="Ygor Marques - Implementação & Automação de CRM com GoHighLevel - título 8-bit" />
+<img src="assets/header.svg?v=22" width="100%" alt="Ygor Marques - Implementação & Automação de CRM com GoHighLevel - título 8-bit" />
 
 <a href="https://www.linkedin.com/in/ygor-freire-374940291"><img src="assets/btn-linkedin.svg?v=20" height="48" alt="LinkedIn" /></a>
 <a href="mailto:ygorfreire.dev@gmail.com"><img src="assets/btn-email.svg?v=20" height="48" alt="Email" /></a>

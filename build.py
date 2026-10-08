@@ -263,15 +263,12 @@ def floor(w, y, h):
 
 
 def header():
-    W, H = 1000, 320
-    b = [f'<rect width="{W}" height="{H}" fill="{BG}"/>', stars(W, 230, 40, 7, calm=True)]
-    b.append(ptext("YGORMARQUES7", 30, 24, 2, GREY))
-    b.append(ptext("MINAS GERAIS * BR", 970 - text_w("MINAS GERAIS * BR", 2), 24, 2, GREY))
-    b.append(ptext_c("YGOR MARQUES", 500, 66, 7, WHITE, shadow=BLUE))
-    b.append(f'<rect x="{500 - 60}" y="134" width="120" height="4" fill="{CYAN}"/>')
-    b.append(ptext_c("IMPLEMENTAÇÃO & AUTOMAÇÃO DE CRM", 500, 152, 2, CYAN))
-    b.append(ptext_c("GOHIGHLEVEL * AGENTES DE IA * INTEGRAÇÕES", 500, 176, 2, GREY))
-    chao = 284
+    W, H = 1000, 300
+    b = [f'<rect width="{W}" height="{H}" fill="{BG}"/>', stars(W, 200, 22, 7, calm=True)]
+    b.append(ptext_c("YGOR MARQUES", 500, 56, 7, WHITE, shadow=BLUE))
+    b.append(f'<rect x="{500 - 60}" y="124" width="120" height="4" fill="{CYAN}"/>')
+    b.append(ptext_c("IMPLEMENTAÇÃO & AUTOMAÇÃO DE CRM", 500, 142, 2, CYAN))
+    chao = 264
     b.append(floor(W, chao, 36))
     sc = 3
     alt = (len(GALO_CORPO) + 4) * sc
