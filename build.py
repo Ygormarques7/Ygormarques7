@@ -544,6 +544,12 @@ PERCURSO = [(1, 1), (5, 1), (5, 3), (9, 3), (9, 1), (15, 1), (15, 3), (19, 3), (
             (25, 3), (29, 3), (29, 1), (33, 1), (33, 5), (29, 5), (29, 7), (33, 7), (33, 9), (25, 9),
             (25, 5), (21, 5), (21, 9), (13, 9), (13, 7), (17, 7), (17, 5), (9, 5), (9, 9), (5, 9),
             (5, 7), (1, 7), (1, 1)]
+# corredores extras (o Galo não passa por eles): cruzam o percurso e quebram as paredes em vários blocos
+EXTRAS = [((5, 1), (9, 1)), ((1, 3), (5, 3)), ((9, 3), (15, 3)), ((19, 3), (25, 3)), ((29, 3), (33, 3)),
+          ((1, 5), (9, 5)), ((17, 5), (21, 5)), ((25, 5), (29, 5)), ((5, 7), (13, 7)), ((17, 7), (29, 7)),
+          ((1, 9), (5, 9)), ((9, 9), (13, 9)), ((21, 9), (25, 9)), ((1, 7), (1, 9)), ((13, 1), (13, 7)),
+          ((17, 1), (17, 3)), ((27, 1), (27, 5)), ((7, 5), (7, 9)), ((11, 5), (11, 9)), ((23, 5), (23, 9)),
+          ((31, 5), (31, 9)), ((3, 3), (3, 5))]
 MZ_COLS, MZ_ROWS, MZ_CELL = 35, 11, 26
 MZ_TC = 0.18  # segundos por casa
 
@@ -563,6 +569,13 @@ def jogo():
             casas.append((c, r))
     casas = casas[:-1]  # o último repete o primeiro
     corredor = set(casas)
+    extras = set()
+    for (c0, r0), (c1, r1) in EXTRAS:
+        for c in range(min(c0, c1), max(c0, c1) + 1):
+            for r in range(min(r0, r1), max(r0, r1) + 1):
+                extras.add((c, r))
+    extras -= corredor
+    corredor |= extras
     n = len(casas)
     dur = n * MZ_TC
 
@@ -605,6 +618,9 @@ def jogo():
                      f'fill="none" stroke="{PAREDE}" stroke-width="3"/>')
             c += 1  # espaço entre barras
 
+    for c, r in sorted(extras):  # pontinhos dos corredores extras (ficam parados)
+        x, y = centro(c, r)
+        b.append(f'<rect x="{x - 2}" y="{y - 2}" width="4" height="4" fill="#ffd8a8"/>')
     lider = 12 * MZ_TC  # o Galo começa 12 casas à frente do ponto de partida
     cantos = {(1, 1), (33, 1), (33, 9), (1, 7)}
     for i, (c, r) in enumerate(casas):

@@ -14,7 +14,7 @@
 
 <img src="assets/inventory.svg?v=20" width="100%" alt="Inventário: JavaScript, React, React Native, Java, Python, HTML, CSS, Git, AWS, GoHighLevel, APIs & Webhooks, Claude & IA" />
 
-<img src="assets/jogo.svg?v=20" width="100%" alt="Caça aos títulos: o Galo correndo atrás dos troféus num labirinto estilo Pac-Man" />
+<img src="assets/jogo.svg?v=21" width="100%" alt="Caça aos títulos: o Galo correndo atrás dos troféus num labirinto estilo Pac-Man" />
 
 <img src="assets/footer.svg?v=20" width="100%" alt="Vamos conversar? LinkedIn e email" />
 
