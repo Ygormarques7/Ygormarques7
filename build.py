@@ -187,13 +187,6 @@ def png(nome, x, y):
             f'href="data:image/png;base64,{data}"/>'), w, h
 
 
-def escudo(x, y, h):
-    """Escudo do Atlético (PNG enviado pelo Ygor), redimensionado para a altura h."""
-    img, w0, h0 = png("escudo-cam.png", x, y)
-    w = round(h * w0 / h0)
-    return img.replace(f'width="{w0}" height="{h0}"', f'width="{w}" height="{h}"')
-
-
 def sprite(rows, x, y, sc, extra=""):
     by = {}
     for r, row in enumerate(rows):
@@ -441,57 +434,63 @@ def dialog():
     return svg(W, H, "".join(b), BLINK, "Sobre: class Ygor")
 
 
-# ---------- 4. perfil ----------
-def status():
-    W, H = 1000, 270
-    b = [f'<rect width="{W}" height="{H}" fill="{BG}"/>', window(8, 18, W - 16, H - 26, "PERFIL")]
-    rows = [
-        ("NOME", "Ygor Marques"),
-        ("FUNÇÃO", "Implementação & Automação de CRM"),
-        ("EMPRESA", "AVA Partners"),
-        ("FORMAÇÃO", "Ciência da Computação · Univértix"),
-        ("PERÍODO", "8º de 8"),
-        ("BASE", "Minas Gerais, Brasil"),
-    ]
-    for i, (k, v) in enumerate(rows):
-        y = 72 + i * 30
-        b.append(ptext(k, 44, y - 13, 2, CYAN))
-        b.append(f'<text x="210" y="{y}" fill="{WHITE}" style="{MONO};font-size:18px;font-weight:bold">'
-                 f'{esc(v)}</text>')
-    # emblema do Galo
-    fx, fy, fw, fh = 740, 48, 210, 196
-    b.append(f'<rect x="{fx}" y="{fy}" width="{fw}" height="{fh}" fill="{BG}"/>')
-    b.append(f'<rect x="{fx}" y="{fy}" width="{fw}" height="{fh}" fill="none" stroke="{DGREY}" stroke-width="4"/>')
-    b.append(escudo(fx + (fw - 105) // 2, fy + 10, 150))
-    b.append(ptext_c("ATLÉTICO-MG", fx + fw // 2, fy + fh - 28, 2, GREY))
-    return svg(W, H, "".join(b), "", "Perfil")
+# ---------- 4/5. perfil e atuação: arquivos no editor, sem animação ----------
+CHAVE, VALOR, SINAL = "#7fa7d9", WHITE, GREY  # poucas cores: chave, valor e pontuação
 
+PERFIL_JSON = [
+    [("{", SINAL)],
+    [('  "nome"', CHAVE), (": ", SINAL), ('"Ygor Marques"', VALOR), (",", SINAL)],
+    [('  "funcao"', CHAVE), (": ", SINAL), ('"Implementação & Automação de CRM"', VALOR), (",", SINAL)],
+    [('  "empresa"', CHAVE), (": ", SINAL), ('"AVA Partners"', VALOR), (",", SINAL)],
+    [('  "formacao"', CHAVE), (": ", SINAL), ('"Ciência da Computação · Univértix"', VALOR), (",", SINAL)],
+    [('  "periodo"', CHAVE), (": ", SINAL), ('"8º de 8"', VALOR), (",", SINAL)],
+    [('  "base"', CHAVE), (": ", SINAL), ('"Minas Gerais, Brasil"', VALOR)],
+    [("}", SINAL)],
+]
 
-# ---------- 5. atuação ----------
-QUESTS = [
-    ("IMPLEMENTAÇÕES GOHIGHLEVEL",
-     "CRMs para clientes reais: pipelines, workflows, formulários e calendários."),
-    ("AGENTES DE IA",
-     "Conversation AI e Voice AI que atendem, qualificam e agendam."),
-    ("INTEGRAÇÕES",
-     "WhatsApp, webhooks e APIs conectando o CRM ao resto da operação."),
+ATUACAO_YML = [
+    [("# o que eu faço no dia a dia", COM)],
+    [("- ", SINAL), ("area", CHAVE), (": ", SINAL), ("Implementações GoHighLevel", VALOR)],
+    [("  faz", CHAVE), (": ", SINAL), ("CRMs para clientes reais: pipelines, workflows, formulários e calendários", VALOR)],
+    [("- ", SINAL), ("area", CHAVE), (": ", SINAL), ("Agentes de IA", VALOR)],
+    [("  faz", CHAVE), (": ", SINAL), ("Conversation AI e Voice AI que atendem, qualificam e agendam", VALOR)],
+    [("- ", SINAL), ("area", CHAVE), (": ", SINAL), ("Integrações", VALOR)],
+    [("  faz", CHAVE), (": ", SINAL), ("WhatsApp, webhooks e APIs conectando o CRM ao resto da operação", VALOR)],
 ]
 
 
+def editor(titulo, arquivo, linguagem, linhas):
+    """Janela com aba, números de linha e barra de status (mesmo visual do Sobre, sem digitação)."""
+    W, LH, FS = 1000, 24, 16
+    top = 96
+    H = top + len(linhas) * LH + 66
+    b = [f'<rect width="{W}" height="{H}" fill="{BG}"/>', window(8, 18, W - 16, H - 26, titulo)]
+    tab_w = text_w(arquivo, 2) + 70
+    b.append(f'<rect x="22" y="32" width="{W - 44}" height="36" fill="#151a33"/>')
+    b.append(f'<rect x="22" y="32" width="{tab_w}" height="36" fill="{PANEL}"/>')
+    b.append(f'<rect x="22" y="32" width="{tab_w}" height="4" fill="{CYAN}"/>')
+    b.append(ptext(arquivo, 44, 44, 2, WHITE))
+    b.append(ptext("X", 22 + tab_w - 24, 44, 2, GREY))
+    b.append(f'<rect x="80" y="{top - 18}" width="2" height="{len(linhas) * LH}" fill="{DGREY}"/>')
+    for i, partes in enumerate(linhas):
+        y = top + i * LH
+        b.append(f'<text x="70" y="{y}" text-anchor="end" fill="{DGREY}" '
+                 f'style="{MONO};font-size:{FS}px;font-weight:bold">{i + 1}</text>')
+        spans = "".join(f'<tspan fill="{c}">{esc(tx)}</tspan>' for tx, c in partes)
+        b.append(f'<text x="92" y="{y}" xml:space="preserve" '
+                 f'style="{MONO};font-size:{FS}px;font-weight:bold">{spans}</text>')
+    sy = H - 44
+    b.append(f'<rect x="22" y="{sy}" width="{W - 44}" height="24" fill="{DBLUE}"/>')
+    b.append(ptext(f"{linguagem}  *  UTF-8  *  {len(linhas)} LINHAS", 36, sy + 5, 2, GREY))
+    return svg(W, H, "".join(b), "", titulo.capitalize())
+
+
+def status():
+    return editor("PERFIL", "PERFIL.JSON", "JSON", PERFIL_JSON)
+
+
 def quests():
-    W = 1000
-    H = 60 + len(QUESTS) * 74 + 20
-    b = [f'<rect width="{W}" height="{H}" fill="{BG}"/>', window(8, 18, W - 16, H - 26, "ATUAÇÃO")]
-    for i, (title, desc) in enumerate(QUESTS):
-        y = 50 + i * 74
-        if i:
-            b.append(f'<rect x="40" y="{y - 10}" width="{W - 80}" height="2" fill="{DGREY}"/>')
-        b.append(f'<rect x="40" y="{y + 4}" width="56" height="26" fill="{BLUE}"/>')
-        b.append(ptext_c(f"{i + 1:02d}", 68, y + 10, 2, WHITE))
-        b.append(ptext(title, 120, y + 10, 2, WHITE))
-        b.append(f'<text x="120" y="{y + 52}" fill="{GREY}" style="{MONO};font-size:16px;font-weight:bold">'
-                 f'{esc(desc)}</text>')
-    return svg(W, H, "".join(b), "", "Atuação")
+    return editor("ATUAÇÃO", "ATUACAO.YML", "YAML", ATUACAO_YML)
 
 
 # ---------- 6. inventário ----------
